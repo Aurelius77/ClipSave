@@ -1,0 +1,29 @@
+{
+  "name": "CopyPasta",
+  "author": "Ifeoluwa Akinpelu",
+  "homepage_url": "https://github.com/Aurelius77/Clipsave",
+  "description": "A chrome extension that allows you to save your clipboard history as long as you want.",
+  "permissions": ["activeTab", "clipboardRead", "clipboardWrite", "storage"],
+  "version": "1.0",
+  "manifest_version": 3,
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

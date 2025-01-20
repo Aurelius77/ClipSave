@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CopyPasta</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Copypasta</h1>
+    <div class="options">
+      <button class="delete-all">Delete all</button>
+      <div class="filter-container">
+        <label for="favorite-toggle" class="toggle-label"
+          >Show Favorites Only</label
+        >
+        <label class="switch">
+          <input type="checkbox" id="favorite-toggle" />
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="input-container">
+      <input
+        type="text"
+        id="new-item"
+        placeholder="Add new item or paste from clipboard"
+      />
+      <button id="add-btn">Add</button>
+    </div>
+    <ul id="clipboardList"></ul>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
