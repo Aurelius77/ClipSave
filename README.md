@@ -8,7 +8,7 @@ You can copy text and it automatically saves to the clipboard for you to use lat
 
 # Installation
 
-Since I haven't been able to upload it on chrome web store for now, you can download the clipsave folder, go to chrome extensions page from menu, select "load unpacked" option and then select the downloaded clipsave folder. It will automatically be installed by chrome
+Since I haven't been able to upload it on chrome web store for now, you can download the clipsave folder from "https://drive.google.com/drive/folders/1QOOWo1bYrClMdwKWy7e3K1yKNObIQU7l?usp=sharing", go to chrome extensions page from menu, select "load unpacked" option and then select the downloaded clipsave folder. It will automatically be installed by chrome
 
 # Forking and contributing
 
