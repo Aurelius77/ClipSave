@@ -1,3 +1,6 @@
+//comment are so you get which function is which. #don'tsayididn't drop it
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const clipboardList = document.getElementById("clipboardList")
     const newItemInput = document.getElementById("new-item")
@@ -7,13 +10,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     if (!clipboardList || !newItemInput || !addBtn || !favorite_Toggle) {
-        console.error("One or more required elements not found in the DOM")
+        console.error("Error loding required element")
         return
     }
 
     let favouriteList = false
 
-    // Render the clipboard items
+    // Render the clips
     function renderClipboardList(history) {
         clipboardList.innerHTML = ""
         const filteredHistory = favouriteList ? history.filter((item) => item.favorite) : history
@@ -92,8 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
 
-    //Delete all items
-
 
     // Delete an item
     function deleteItem(index) {
@@ -106,6 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 
+
+    //delete all items
 
     deleteAll.addEventListener('click', () => {
         const history = []
