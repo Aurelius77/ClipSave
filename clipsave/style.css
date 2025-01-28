@@ -1,6 +1,6 @@
  body {
      font-family: Arial, sans-serif;
-     max-width: 500px;
+     max-width: 600px;
      margin: 0 auto;
      padding: 20px;
      background-color: #f0f0f0;
@@ -132,6 +132,13 @@
     text-transform: uppercase;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.time-text{
+    flex-grow: 1;
+    padding: 5px;
+    font-size: 12px;
+    text-align: center;
 }
 
 .delete-all:hover {

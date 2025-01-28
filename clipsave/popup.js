@@ -1,5 +1,3 @@
-//comment are so you get which function is which. #don'tsayididn't drop it
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const clipboardList = document.getElementById("clipboardList")
@@ -16,14 +14,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let favouriteList = false
 
+
+    function getTime(savedTime) {
+
+        const now = Date.now()
+        const timestamp = Number(savedTime)
+        const diff = Math.floor((now - timestamp) / 1000)
+
+        if (diff < 60) {
+            return `${diff} secs ago`
+        }
+
+        const minutes = Math.floor(diff / 60)
+        if (minutes < 60) {
+            return `${minutes} ${minutes === 1 ? 'min' : 'mins'} ago`
+        }
+
+
+        const hours = Math.floor(minutes / 60)
+        if (hours < 24) {
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+        }
+
+
+        const days = Math.floor(hours / 24)
+        return `${days} ${days === 1 ? 'day' : 'days'} ago`
+    }
+
+
+
     // Render the clips
     function renderClipboardList(history) {
+
         clipboardList.innerHTML = ""
         const filteredHistory = favouriteList ? history.filter((item) => item.favorite) : history
         filteredHistory.forEach((item, index) => {
             const li = document.createElement("li")
             li.className = "clipboard-item"
             li.innerHTML = `
+                <span class='time-text'>${getTime(item.timestamp)}</span>
                 <span class='item-text'>${item.text}</span>
                 <div class='options'>
                     <button class="copy-btn">Copy</button>
@@ -42,10 +71,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add new item
     addBtn.addEventListener("click", () => {
         const text = newItemInput.value.trim()
+        const currentTime = Date.now()
         if (text) {
             chrome.storage.local.get("clipboardHistory", (data) => {
                 const history = data.clipboardHistory || []
-                history.unshift({ text, favorite: false })
+                history.unshift({ text, favorite: false, timestamp: currentTime })
                 chrome.storage.local.set({ clipboardHistory: history }, () => {
                     renderClipboardList(history)
                     newItemInput.value = ""

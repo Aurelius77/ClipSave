@@ -5,9 +5,10 @@ document.addEventListener("copy", (e) => {
 
     e.clipboardData.setData("text/plain", selection);
 
+
     if (selection.trim()) {
         try {
-            chrome.runtime.sendMessage({ type: "saveClipboard", text: selection }, (response) => {
+            chrome.runtime.sendMessage({ type: "saveClipboard", text: selection, timestamp: Date.now() }, (response) => {
                 if (response && response.success) {
                 }
             })
