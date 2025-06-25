@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = document.getElementById("add-btn")
     const favorite_Toggle = document.getElementById('favorite-toggle')
     const deleteAll = document.querySelector('.delete-all')
-
+    const clearBtn = document.getElementById('clear-search-btn')
+    const searchInput = document.getElementById('search')
+    const searchBtn = document.getElementById('search-btn')
 
     if (!clipboardList || !newItemInput || !addBtn || !favorite_Toggle) {
         console.error("Error loding required element")
@@ -143,6 +145,25 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteAll.addEventListener('click', () => {
         const history = []
         chrome.storage.local.set({ clipboardHistory: history }, () => {
+            renderClipboardList(history)
+        })
+    })
+
+    //search items
+    searchBtn.addEventListener('click', () => {
+        const searchText = searchInput.value.trim().toLowerCase()
+        chrome.storage.local.get("clipboardHistory", (data) => {
+            const history = data.clipboardHistory || []
+            const filteredHistory = history.filter(item => item.text.toLowerCase().includes(searchText))
+            renderClipboardList(filteredHistory)
+        })
+    })
+
+    // Clear search input
+    clearBtn.addEventListener('click', () => {
+        searchInput.value = ''
+        chrome.storage.local.get('clipboardHistory', (data) => {
+            const history = data.clipboardHistory || []
             renderClipboardList(history)
         })
     })
