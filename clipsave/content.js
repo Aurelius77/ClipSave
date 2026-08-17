@@ -8,7 +8,7 @@ document.addEventListener("copy", (e) => {
 
     if (selection.trim()) {
         try {
-            chrome.runtime.sendMessage({ type: "saveClipboard", text: selection, timestamp: Date.now() }, (response) => {
+            chrome.runtime.sendMessage({ type: "saveClipboard", text: selection, timestamp: Date.now(), origin: location.hostname }, (response) => {
                 if (response && response.success) {
                 }
             })

@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ClipSave</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="theme.js"></script>
   </head>
   <body>
     <header class="app-header">
       <h1>ClipSave</h1>
-      <button class="delete-all" title="Delete all clips">Clear all</button>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle light or dark theme"></button>
+        <button class="delete-all" title="Delete all clips">Clear all</button>
+      </div>
     </header>
 
     <nav class="tab-bar" id="tabBar">
@@ -18,6 +22,7 @@
       <button class="tab" data-tab="frequent">Frequent</button>
       <button class="tab" data-tab="fav">★ Fav</button>
       <button class="tab" data-tab="groups">Groups</button>
+      <button class="tab tab-icon" data-tab="settings" title="Settings" aria-label="Settings">⚙</button>
     </nav>
 
     <!-- Clip tabs: all / recent / frequent / fav -->
@@ -45,6 +50,9 @@
       </div>
       <div id="groupList"></div>
     </section>
+
+    <!-- Settings tab (rendered by popup.js) -->
+    <section id="settingsView" class="hidden"></section>
 
     <script src="popup.js"></script>
   </body>
