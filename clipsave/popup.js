@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         openGroupMenu: null, // clip id whose "add to group" menu is open
         editingClip: null,   // clip id currently being edited inline
         editingGroup: null,  // group id currently being renamed inline
+        fillingClip: null,   // template clip id whose fill-in panel is open
         expandedGroups: new Set(),
         syncStatus: ""       // transient status line shown in Settings
     }
@@ -55,6 +56,29 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;")
+    }
+
+    // Snippet templates: any clip containing {{placeholder}} tokens is a template.
+    // Copying it opens a fill-in panel instead of copying the raw text.
+    const PLACEHOLDER_RE = /\{\{\s*([^{}]+?)\s*\}\}/g
+
+    // Unique placeholder names, in first-seen order.
+    function getPlaceholders(text) {
+        const names = []
+        let m
+        PLACEHOLDER_RE.lastIndex = 0
+        while ((m = PLACEHOLDER_RE.exec(text)) !== null) {
+            if (!names.includes(m[1])) names.push(m[1])
+        }
+        return names
+    }
+
+    // Replace each {{name}} with the supplied value (missing/blank → empty string).
+    function fillTemplate(text, values) {
+        return text.replace(PLACEHOLDER_RE, (_, name) => {
+            const v = values[name]
+            return v == null ? "" : v
+        })
     }
 
     function getTime(savedTime) {
@@ -256,8 +280,55 @@ document.addEventListener("DOMContentLoaded", () => {
                 return
             }
 
+            const placeholders = getPlaceholders(item.text)
+            const isTemplate = placeholders.length > 0
+
+            // Inline fill-in panel for a template clip.
+            if (isTemplate && state.fillingClip === item.id) {
+                li.classList.add("filling")
+                const fields = placeholders.map((name, i) => `
+                    <label class="fill-field">
+                        <span class="fill-label">${escapeHtml(name)}</span>
+                        <input class="fill-input" type="text" data-name="${escapeHtml(name)}" ${i === 0 ? "autofocus" : ""} />
+                    </label>`).join("")
+                li.innerHTML = `
+                    <div class="fill-preview">${escapeHtml(item.text)}</div>
+                    <div class="fill-fields">${fields}</div>
+                    <div class="clip-footer">
+                        <span class="edit-hint">Fill in, then Copy · Esc to cancel</span>
+                        <div class="clip-actions">
+                            <button class="copy-btn fill-copy">Copy</button>
+                            <button class="icon-btn fill-cancel" title="Cancel">×</button>
+                        </div>
+                    </div>
+                `
+                const inputs = Array.from(li.querySelectorAll(".fill-input"))
+                const fillCopyBtn = li.querySelector(".fill-copy")
+                const doCopy = () => {
+                    const values = {}
+                    inputs.forEach((inp) => { values[inp.dataset.name] = inp.value })
+                    copyFilled(item.id, values, fillCopyBtn)
+                }
+                fillCopyBtn.addEventListener("click", doCopy)
+                li.querySelector(".fill-cancel").addEventListener("click", () => {
+                    state.fillingClip = null
+                    render()
+                })
+                inputs.forEach((inp) => inp.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") { e.preventDefault(); doCopy() }
+                    else if (e.key === "Escape") { e.preventDefault(); state.fillingClip = null; render() }
+                }))
+                clipboardList.appendChild(li)
+                if (inputs[0]) inputs[0].focus()
+                return
+            }
+
             const badge = item.useCount > 0
                 ? `<span class="use-badge" title="Copied ${item.useCount} times">${item.useCount}×</span>`
+                : ""
+
+            const templateBadge = isTemplate
+                ? `<span class="tpl-badge" title="Template · ${placeholders.length} field${placeholders.length === 1 ? "" : "s"} to fill">{ }</span>`
                 : ""
 
             const isMenuOpen = state.openGroupMenu === item.id
@@ -271,9 +342,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="clip-meta">
                         <span class="time-text">${getTime(displayTime)}</span>
                         ${badge}
+                        ${templateBadge}
                     </div>
                     <div class="clip-actions">
-                        <button class="copy-btn" title="Copy">Copy</button>
+                        <button class="copy-btn" title="${isTemplate ? "Fill in & copy" : "Copy"}">${isTemplate ? "Fill" : "Copy"}</button>
                         <button class="icon-btn fav ${item.favorite ? "is-fav" : ""}" title="Favorite">${item.favorite ? "★" : "☆"}</button>
                         <button class="icon-btn group-btn ${isMenuOpen ? "active" : ""}" title="Add to group">＋</button>
                         <button class="icon-btn edit-btn" title="Edit">✎</button>
@@ -284,7 +356,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `
 
             const copyBtn = li.querySelector(".copy-btn")
-            copyBtn.addEventListener("click", () => copyToClipboard(item.id, copyBtn))
+            if (isTemplate) {
+                // Templates don't copy raw — they open the fill-in panel.
+                copyBtn.addEventListener("click", () => {
+                    state.fillingClip = item.id
+                    state.openGroupMenu = null
+                    state.editingClip = null
+                    render()
+                })
+            } else {
+                copyBtn.addEventListener("click", () => copyToClipboard(item.id, copyBtn))
+            }
             li.querySelector(".fav").addEventListener("click", () => toggleFavorite(item.id))
             li.querySelector(".group-btn").addEventListener("click", () => {
                 state.openGroupMenu = isMenuOpen ? null : item.id
@@ -742,6 +824,37 @@ document.addEventListener("DOMContentLoaded", () => {
         render()
     }
 
+    // Copy a template's filled-in result. The panel stays open so the user can
+    // tweak values and copy again; each copy counts as a use.
+    function copyFilled(id, values, button) {
+        const clip = state.clips.find((c) => c.id === id)
+        if (!clip) return
+        const result = fillTemplate(clip.text, values)
+        navigator.clipboard
+            .writeText(result)
+            .then(() => {
+                button.textContent = "Copied!"
+                button.classList.add("copied")
+                setTimeout(() => {
+                    button.textContent = "Copy"
+                    button.classList.remove("copied")
+                }, 1500)
+
+                clip.useCount = (clip.useCount || 0) + 1
+                clip.lastUsed = Date.now()
+                persistClips()
+            })
+            .catch((err) => {
+                console.error("Failed to copy text: ", err)
+                button.textContent = "Error"
+                button.classList.add("error")
+                setTimeout(() => {
+                    button.textContent = "Copy"
+                    button.classList.remove("error")
+                }, 1500)
+            })
+    }
+
     function saveEdit(id, newText) {
         const text = newText.trim()
         const clip = state.clips.find((c) => c.id === id)
@@ -767,6 +880,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         if (state.openGroupMenu === id) state.openGroupMenu = null
         if (state.editingClip === id) state.editingClip = null
+        if (state.fillingClip === id) state.fillingClip = null
         persistClips()
         persistGroups()
         syncIfOn()
@@ -862,6 +976,7 @@ document.addEventListener("DOMContentLoaded", () => {
         state.openGroupMenu = null
         state.editingClip = null
         state.editingGroup = null
+        state.fillingClip = null
         state.syncStatus = ""
         render()
     })

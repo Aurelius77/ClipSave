@@ -5,9 +5,12 @@ A Chrome extension that saves your clipboard history for as long as you want. Ea
 ## Features
 
 - **Auto-save history** — every copy is saved with a timestamp (keeps your latest 100).
+- **Right-click to save** — select text on any page and pick *Save to ClipSave* from the context menu.
+- **Keyboard shortcut** — open ClipSave with `Ctrl+Shift+Y` (`⌘+Shift+Y` on Mac). Change it anytime at `chrome://extensions/shortcuts`.
 - **Search** — instantly filter through your clips.
 - **Tabs** — *All*, *Recent* (last used), *Frequent* (most used), *★ Fav*, and *Groups*.
 - **Groups** — create named groups and drop clips into them; a clip can live in more than one.
+- **Snippet templates** — save a clip with `{{placeholders}}` (e.g. `Hi {{name}}, thanks for {{thing}}`), and ClipSave prompts you to fill them in each time you copy.
 - **Edit & dedup** — fix a saved clip inline, and copying the same thing twice won't make a duplicate.
 - **Dark / light mode** — toggle it from the header, or let it follow your system.
 - **Privacy** (⚙ tab) — pause capturing, ignore specific sites, and auto-expire old clips. Favorites and grouped clips are always kept.
@@ -16,7 +19,7 @@ A Chrome extension that saves your clipboard history for as long as you want. Ea
 
 ## Usage
 
-Copy any text and it's saved automatically for later. Mark favorites for quick access to your most-used clips, organize them into groups, and delete whatever you don't need — one clip at a time or all at once.
+Copy any text and it's saved automatically for later — or select text on a page and right-click **Save to ClipSave**. Open the popup from its toolbar icon or with `Ctrl+Shift+Y` (`⌘+Shift+Y` on Mac). Mark favorites for quick access to your most-used clips, organize them into groups, and delete whatever you don't need — one clip at a time or all at once. For text you reuse with small changes, save it as a template with `{{placeholders}}` and fill them in on the fly when you copy.
 
 ## Installation
 

@@ -3,7 +3,7 @@
   "author": "Ifeoluwa Akinpelu",
   "homepage_url": "https://github.com/Aurelius77/Clipsave",
   "description": "A chrome extension that allows you to save your clipboard history as long as you want.",
-  "permissions": ["activeTab", "clipboardRead", "clipboardWrite", "storage"],
+  "permissions": ["activeTab", "clipboardRead", "clipboardWrite", "storage", "contextMenus"],
   "version": "1.0",
   "manifest_version": 3,
   "icons": {
@@ -14,6 +14,16 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
+  },
+
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Open ClipSave"
+    }
   },
 
   "background": {

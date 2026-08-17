@@ -30,52 +30,83 @@ function expireClips(history, groups, expireDays) {
     })
 }
 
+const MAX_HISTORY_ITEMS = 100
+
+// Save a clip, honoring the privacy gate, dedup, the 100-item cap, and auto-expire.
+// Shared by the copy listener and the right-click context menu. `cb` (optional)
+// receives { success, skipped? }.
+function saveClip(text, timestamp, origin, cb) {
+    chrome.storage.local.get(["clipboardHistory", "groups", "settings"], (data) => {
+        const settings = data.settings || {}
+
+        // Privacy gate: don't capture while paused or on an ignored domain.
+        if (settings.paused || originIsIgnored(origin, settings.ignoreDomains)) {
+            if (cb) cb({ success: false, skipped: true })
+            return
+        }
+
+        let history = data.clipboardHistory || []
+
+        // Dedup: if this exact text is already saved, refresh it and move it to
+        // the top instead of adding a duplicate (preserve id/favorite/useCount).
+        const existingIndex = history.findIndex((c) => c && c.text === text)
+        let entry
+        if (existingIndex !== -1) {
+            entry = history.splice(existingIndex, 1)[0]
+            entry.timestamp = timestamp
+            entry.lastUsed = timestamp
+            if (!entry.id) entry.id = crypto.randomUUID()
+        } else {
+            entry = {
+                id: crypto.randomUUID(),
+                text: text,
+                favorite: false,
+                timestamp: timestamp,
+                lastUsed: timestamp,
+                useCount: 0
+            }
+        }
+        history.unshift(entry)
+
+        if (history.length > MAX_HISTORY_ITEMS) {
+            history = history.slice(0, MAX_HISTORY_ITEMS)
+        }
+
+        // Opportunistic auto-expire (also runs when the popup opens).
+        history = expireClips(history, data.groups, settings.expireDays)
+
+        chrome.storage.local.set({ clipboardHistory: history }, () => {
+            if (cb) cb({ success: true })
+        })
+    })
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "saveClipboard") {
-        chrome.storage.local.get(["clipboardHistory", "groups", "settings"], (data) => {
-            const settings = data.settings || {}
-
-            // Privacy gate: don't capture while paused or on an ignored domain.
-            if (settings.paused || originIsIgnored(request.origin, settings.ignoreDomains)) {
-                sendResponse({ success: false, skipped: true })
-                return
-            }
-
-            let history = data.clipboardHistory || [];
-
-            // Dedup: if this exact text is already saved, refresh it and move it to
-            // the top instead of adding a duplicate (preserve id/favorite/useCount).
-            const existingIndex = history.findIndex((c) => c && c.text === request.text);
-            let entry;
-            if (existingIndex !== -1) {
-                entry = history.splice(existingIndex, 1)[0];
-                entry.timestamp = request.timestamp;
-                entry.lastUsed = request.timestamp;
-                if (!entry.id) entry.id = crypto.randomUUID();
-            } else {
-                entry = {
-                    id: crypto.randomUUID(),
-                    text: request.text,
-                    favorite: false,
-                    timestamp: request.timestamp,
-                    lastUsed: request.timestamp,
-                    useCount: 0
-                };
-            }
-            history.unshift(entry);
-
-            const MAX_HISTORY_ITEMS = 100
-            if (history.length > MAX_HISTORY_ITEMS) {
-                history = history.slice(0, MAX_HISTORY_ITEMS)
-            }
-
-            // Opportunistic auto-expire (also runs when the popup opens).
-            history = expireClips(history, data.groups, settings.expireDays)
-
-            chrome.storage.local.set({ clipboardHistory: history }, () => {
-                sendResponse({ success: true });
-            });
-        });
-        return true;
+        saveClip(request.text, request.timestamp, request.origin, sendResponse)
+        return true
     }
-});
+})
+
+// ---- Right-click "Save to ClipSave" on selected text ----
+// removeAll first so re-creating on install/update never throws a duplicate-id error.
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.removeAll(() => {
+        chrome.contextMenus.create({
+            id: "clipsave-save-selection",
+            title: "Save to ClipSave",
+            contexts: ["selection"]
+        })
+    })
+})
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId !== "clipsave-save-selection") return
+    const text = (info.selectionText || "").trim()
+    if (!text) return
+    let origin = ""
+    try {
+        origin = new URL(info.pageUrl || (tab && tab.url) || "").hostname
+    } catch (e) { /* no usable URL — save without an origin */ }
+    saveClip(text, Date.now(), origin)
+})
