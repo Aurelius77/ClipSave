@@ -3,37 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CopyPasta</title>
+    <title>ClipSave</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>Copypasta</h1>
-    <div class="options">
-      <button class="delete-all">Delete all</button>
-      <div class="filter-container">
-        <label for="favorite-toggle" class="toggle-label"
-          >Show Favorites Only</label
-        >
-        <label class="switch">
-          <input type="checkbox" id="favorite-toggle" />
-          <span class="slider round"></span>
-        </label>
+    <header class="app-header">
+      <h1>ClipSave</h1>
+      <button class="delete-all" title="Delete all clips">Clear all</button>
+    </header>
+
+    <nav class="tab-bar" id="tabBar">
+      <button class="tab active" data-tab="all">All</button>
+      <button class="tab" data-tab="recent">Recent</button>
+      <button class="tab" data-tab="frequent">Frequent</button>
+      <button class="tab" data-tab="fav">★ Fav</button>
+      <button class="tab" data-tab="groups">Groups</button>
+    </nav>
+
+    <!-- Clip tabs: all / recent / frequent / fav -->
+    <section id="clipView">
+      <div class="input-container">
+        <input
+          type="text"
+          id="new-item"
+          placeholder="Add new item or paste from clipboard"
+        />
+        <button id="add-btn">Add</button>
       </div>
-    </div>
-    <div class="search-container">
-      <input type="text" id="search" placeholder="Search items..." />
-      <button id="search-btn">Search</button>
-      <button id="clear-search-btn">Clear Search</button>
-    </div>
-    <div class="input-container">
-      <input
-        type="text"
-        id="new-item"
-        placeholder="Add new item or paste from clipboard"
-      />
-      <button id="add-btn">Add</button>
-    </div>
-    <ul id="clipboardList"></ul>
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Search clips…" />
+        <button id="clear-search-btn" title="Clear search" aria-label="Clear search">×</button>
+      </div>
+      <ul id="clipboardList"></ul>
+    </section>
+
+    <!-- Groups tab -->
+    <section id="groupsView" class="hidden">
+      <div class="input-container">
+        <input type="text" id="new-group" placeholder="New group name…" />
+        <button id="add-group-btn">Create</button>
+      </div>
+      <div id="groupList"></div>
+    </section>
 
     <script src="popup.js"></script>
   </body>
