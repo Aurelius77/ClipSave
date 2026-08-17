@@ -1,15 +1,34 @@
 # ClipSave
 
-A chrome extension that allows you to save your clipboard history as long as you want. Easily find texts and links you've copied when you need them right in your browser, easy and stress free.
+A Chrome extension that saves your clipboard history for as long as you want. Easily find the text and links you've copied when you need them, right in your browser — easy and stress free.
 
-# Usage
+## Features
 
-You can copy text and it automatically saves to the clipboard for you to use later. Copy clips, mark favorites to easily gain access to your most used ones and delete whenever you want to.
+- **Auto-save history** — every copy is saved with a timestamp (keeps your latest 100).
+- **Search** — instantly filter through your clips.
+- **Tabs** — *All*, *Recent* (last used), *Frequent* (most used), *★ Fav*, and *Groups*.
+- **Groups** — create named groups and drop clips into them; a clip can live in more than one.
+- **Edit & dedup** — fix a saved clip inline, and copying the same thing twice won't make a duplicate.
+- **Dark / light mode** — toggle it from the header, or let it follow your system.
+- **Privacy** (⚙ tab) — pause capturing, ignore specific sites, and auto-expire old clips. Favorites and grouped clips are always kept.
+- **Backup** (⚙ tab) — export everything to a JSON file and import it back later.
+- **Sync** (⚙ tab) — optionally sync your favorites and groups across devices signed into the same Chrome.
 
-# Installation
+## Usage
 
-Since I haven't been able to upload it on chrome web store for now, you can download the clipsave folder from "https://drive.google.com/drive/folders/1QOOWo1bYrClMdwKWy7e3K1yKNObIQU7l?usp=sharing", go to chrome extensions page from menu, select "load unpacked" option and then select the downloaded clipsave folder. It will automatically be installed by chrome
+Copy any text and it's saved automatically for later. Mark favorites for quick access to your most-used clips, organize them into groups, and delete whatever you don't need — one clip at a time or all at once.
 
-# Forking and contributing
+## Installation
 
-Since it has to do with clipboard which can contain some sensitive data, I have left it open source so you can see what's been done with your data. Contributions are also welcome as I look to add more features continously. You can support by dropping a star. #WINKWINK#
+I haven't put it on the Chrome Web Store yet, so for now:
+
+1. Download the `clipsave` folder from [Google Drive](https://drive.google.com/drive/folders/1QOOWo1bYrClMdwKWy7e3K1yKNObIQU7l?usp=sharing).
+2. Open Chrome and go to `chrome://extensions` (or Menu → Extensions → Manage Extensions).
+3. Turn on **Developer mode** (top-right).
+4. Click **Load unpacked** and select the downloaded `clipsave` folder.
+
+Chrome will install it, and you'll see the ClipSave icon in your toolbar. Pin it for easy access.
+
+## Forking and contributing
+
+Since it deals with the clipboard, which can hold sensitive data, I've kept it open source so you can see exactly what's done with your data. Contributions are welcome as I keep adding features — and you can support by dropping a star. #WINKWINK#
